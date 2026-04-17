@@ -67,8 +67,8 @@ export default function RiderDashboard() {
       console.groupEnd();
 
       setDashboard(payload);
-      setPayouts(payoutsResponse.data);
-      setPlans(plansResponse.data);
+      setPayouts(Array.isArray(payoutsResponse?.data?.data) ? payoutsResponse.data.data : []);
+      setPlans(Array.isArray(plansResponse?.data?.data) ? plansResponse.data.data : []);
       if (payload?.rider) {
         const rider = payload.rider;
         setProfileForm({
@@ -109,6 +109,7 @@ export default function RiderDashboard() {
           ...(current || {}),
           rider: subscription.rider || current?.rider,
           premium: subscription.premium || current?.premium,
+          aiPremiumInsight: subscription.aiPremiumInsight || current?.aiPremiumInsight,
           activePolicy: subscription.policy,
           premiumPayments: subscription.premiumPayment
             ? [subscription.premiumPayment, ...(current?.premiumPayments || [])]
@@ -141,6 +142,7 @@ export default function RiderDashboard() {
           ...(current || {}),
           rider: subscription.rider || current?.rider,
           premium: subscription.premium || current?.premium,
+          aiPremiumInsight: subscription.aiPremiumInsight || current?.aiPremiumInsight,
           activePolicy: subscription.policy,
           premiumPayments: subscription.premiumPayment
             ? [subscription.premiumPayment, ...(current?.premiumPayments || [])]
@@ -182,9 +184,19 @@ export default function RiderDashboard() {
       });
       const updatedRider = data?.data?.rider;
       if (updatedRider) {
+        const premiumQuoteResponse = await api.post("/rider/premium", {
+          plan: updatedRider.plan,
+          city: updatedRider.city,
+          zoneCode: updatedRider.zoneCode,
+          weeklyEarningsAverage: updatedRider.weeklyEarningsAverage
+        });
+        const premiumQuote = premiumQuoteResponse?.data?.data;
+
         setDashboard((current) => ({
           ...current,
-          rider: updatedRider
+          rider: updatedRider,
+          premium: premiumQuote?.premium || current?.premium,
+          aiPremiumInsight: premiumQuote?.aiPremiumInsight || current?.aiPremiumInsight
         }));
         setProfileForm({
           name: updatedRider.userId?.name || updatedRider.name || "",
@@ -408,6 +420,7 @@ export default function RiderDashboard() {
   const activePolicy = dashboard?.activePolicy;
   const activePlanKey = activePolicy?.planKey || null;
   const premiumPayments = dashboard?.premiumPayments || [];
+  const aiPremiumInsight = dashboard?.aiPremiumInsight || null;
   const activeDeliveryStatus = dashboard?.rider?.activeDelivery?.status || "IDLE";
   const isShiftActive = ["ACTIVE", "PICKED_UP"].includes(activeDeliveryStatus);
   const coveredToday = eligibilityStatus.coveredToday ? "YES" : "NO";
@@ -501,6 +514,7 @@ export default function RiderDashboard() {
           profileMessage={profileMessage}
           activePolicy={activePolicy}
           city={dashboard?.rider?.city}
+          aiPremiumInsight={aiPremiumInsight}
         />
       ) : null}
 

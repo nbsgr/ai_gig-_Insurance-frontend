@@ -8,8 +8,8 @@ export const TAB_ITEMS = [
 
 export const PLAN_LOCK_MONTHS = {
   BASIC: 2,
-  STANDARD: 5,
-  PRO: 8,
+  STANDARD: 6,
+  PRO: 9,
   PREMIUM: 12
 };
 

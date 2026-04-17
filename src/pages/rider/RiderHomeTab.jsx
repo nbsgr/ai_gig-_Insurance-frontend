@@ -5,6 +5,7 @@ export function RiderHomeTab({
   activeAlerts,
   currentPlan,
   premium,
+  aiPremiumInsight,
   coveredToday,
   zoneLabel,
   isShiftActive,
@@ -87,6 +88,29 @@ export function RiderHomeTab({
             Raw premium comes to {formatCurrency(premium?.rawPremium ?? 0)}.
             {premium?.cappedByIncome ? " Your weekly income cap reduced it to keep the charge rider-friendly." : " Your premium is still within the weekly income cap."}
           </p>
+        </div>
+      </Panel>
+
+      <Panel title="AI Premium Insight" subtitle="This summary is generated on the backend using your pricing inputs, while the AI API key stays on the server only.">
+        <div className="ui-card-block rounded-xl p-4">
+          {aiPremiumInsight ? (
+            <>
+              <p className="ui-important text-base font-semibold">{aiPremiumInsight.summary}</p>
+              <p className="ui-subtext mt-2 text-sm">{aiPremiumInsight.recommendation}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(aiPremiumInsight.factors || []).map((factor) => (
+                  <span key={factor} className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300">
+                    {factor}
+                  </span>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="ui-subtext text-sm">
+              AI premium insight is unavailable right now. Set <code>AI_API_KEY</code> on the backend to enable
+              automatic pricing commentary.
+            </p>
+          )}
         </div>
       </Panel>
 
